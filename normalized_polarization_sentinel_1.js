@@ -72,10 +72,13 @@ var sigma0toGamma0 = function(image) {
 }
 var s1Collection = s1Collection.map(sigma0toGamma0);
 // -------------------------------------------------------------------------------
-// Calculate normalized difference between VH and VV (Gade et. al., 2015, Analyses of
-// multi-year synthetic aperture radar imagery of dry-fallen intertidal flats. The 
-// International Archives of Photogrammetry, Remote Sensing and Spatial Information 
-// Sciences, 40(7), 941.)
+// Calculate normalized difference between VH and VV 
+// The Pol is useful for discriminating between dry biomass and vegetated 
+// structures (Patel et. al, 2006 Comparative evaluation of the sensitivity 
+// of multi-polarized multi-frequency SAR backscatter to plant density. Int. 
+// J. Remote Sens; Kornelsen et. all, 2013 Advances in soil moisture 
+// retrieval from synthetic aperture radar and hydrological applications. J. 
+// Hydrol.)
 var normDiff = function(image){
   return image.addBands(image.expression( '(VH - VV) / (VH + VV)', 
   {
