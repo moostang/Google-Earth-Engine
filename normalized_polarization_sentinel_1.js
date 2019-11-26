@@ -59,13 +59,13 @@ print(s1Collection);
 //
 
 // Convert sigma-0 to gamma-0
-var toGamma0 = function(image) {
+var sigma0toGamma0 = function(image) {
     var vh = image.select('VH').subtract(image.select('angle')
-    .multiply(Math.PI/180.0).cos().log10().multiply(10.0));
+    .multiply(Math.PI/180.0).tan().log10().multiply(10.0));
     return vh.addBands(image.select('VV').subtract(image.select('angle')
-    .multiply(Math.PI/180.0).cos().log10().multiply(10.0)));
+    .multiply(Math.PI/180.0).tan().log10().multiply(10.0)));
 }
-var s1Collection = s1Collection.map(toGamma0);
+var s1Collection = s1Collection.map(sigma0toGamma0);
 
 // Calculate normalized difference between VH and VV
 var normDiff = function(image){
