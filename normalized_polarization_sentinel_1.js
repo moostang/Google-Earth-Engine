@@ -29,7 +29,7 @@ Map.centerObject(geometry,14);
 // along 'VV' and 'VH' for the given date. Also define the resolution.
 var s1Collection = ee.ImageCollection('COPERNICUS/S1_GRD')
   .filterBounds(geometry)
-  .filterDate('2019-05-15', '2019-08-31')
+  .filterDate('2019-01-15', '2019-03-31')
   .filterMetadata('transmitterReceiverPolarisation', 'equals', ['VV', 'VH'])
   .filterMetadata('resolution_meters', 'equals', 10);
 print(s1Collection);
