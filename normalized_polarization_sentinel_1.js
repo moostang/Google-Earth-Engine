@@ -17,10 +17,10 @@
 
 // Define the geometry of the area bounding the project site
 var geometry = ee.Geometry.Polygon(
-  [[[-119.3071, 55.27205],
-    [-119.3071, 55.07207],
-    [-119.0216, 55.07207],
-    [-119.0216, 55.27205]]]);
+  [[[-99.0071, 15.27205],
+    [-99.0071, 15.07207],
+    [-99.0016, 15.07207],
+    [-99.0016, 15.27205]]]);
 
 // Center Map to center of Project site
 Map.centerObject(geometry,14);
