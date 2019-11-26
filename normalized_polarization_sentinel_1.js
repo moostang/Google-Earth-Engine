@@ -61,7 +61,9 @@ print(s1Collection);
 //
 
 // -------------------------------------------------------------------------------
-// Convert sigma-0 to gamma-0
+// Convert sigma-0 to gamma-0 (Small et. al., 2004 Robust radiometric terrain 
+// correction for SAR image comparisons. In IGARSS 2004. 2004 IEEE International
+// Geoscience and Remote Sensing Symposium (Vol. 3, pp. 1730-1733). IEEE.)
 var sigma0toGamma0 = function(image) {
     var vh = image.select('VH').subtract(image.select('angle')
     .multiply(Math.PI/180.0).tan().log10().multiply(10.0));
