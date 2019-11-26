@@ -14,26 +14,28 @@
 //
 // 2019-11-25
 // -------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------
 
 // Define the geometry of the area bounding the project site
-var geometry = ee.Geometry.Polygon(
+var aoi = ee.Geometry.Polygon(
   [[[-99.0071, 15.27205],
     [-99.0071, 15.07207],
     [-99.0016, 15.07207],
     [-99.0016, 15.27205]]]);
 
 // Center Map to center of Project site
-Map.centerObject(geometry,14);
+Map.centerObject(aoi,14);
 
 // Make a collection of Sentinel-1 images containing the polarisations 
 // along 'VV' and 'VH' for the given date. Also define the resolution.
 var s1Collection = ee.ImageCollection('COPERNICUS/S1_GRD')
-  .filterBounds(geometry)
+  .filterBounds(aoi)
   .filterDate('2019-01-15', '2019-03-31')
   .filterMetadata('transmitterReceiverPolarisation', 'equals', ['VV', 'VH'])
   .filterMetadata('resolution_meters', 'equals', 10);
 print(s1Collection);
 
+// -------------------------------------------------------------------------------
 // Create functions that will mask out the Sentinel-1 images beyond 
 // 30 t0 45 degrees. 
 var maskGTAng30 = function(image){
@@ -52,12 +54,13 @@ var s1Collection = s1Collection.map(maskLTAng45);
 
 print(s1Collection);
 
-//Map.addLayer(s1Collection.select(['VV']).first().clip(geometry), {min:-30, max:0}, 'S-1 VV CORRECTED');
+//Map.addLayer(s1Collection.select(['VV']).first().clip(aoi), {min:-30, max:0}, 'S-1 VV CORRECTED');
 
 //.......
 // ADD ADDITIONAL MASKS HERE such as temperature, wind, etc. 
 //
 
+// -------------------------------------------------------------------------------
 // Convert sigma-0 to gamma-0
 var sigma0toGamma0 = function(image) {
     var vh = image.select('VH').subtract(image.select('angle')
@@ -66,8 +69,11 @@ var sigma0toGamma0 = function(image) {
     .multiply(Math.PI/180.0).tan().log10().multiply(10.0)));
 }
 var s1Collection = s1Collection.map(sigma0toGamma0);
-
-// Calculate normalized difference between VH and VV
+// -------------------------------------------------------------------------------
+// Calculate normalized difference between VH and VV (Gade et. al., 2015, Analyses of
+// multi-year synthetic aperture radar imagery of dry-fallen intertidal flats. The 
+// International Archives of Photogrammetry, Remote Sensing and Spatial Information 
+// Sciences, 40(7), 941.)
 var normDiff = function(image){
   return image.addBands(image.expression( '(VH - VV) / (VH + VV)', 
   {
@@ -77,12 +83,13 @@ var normDiff = function(image){
 }; 
 
 var s1Collection = s1Collection.map(normDiff);
-
+// -------------------------------------------------------------------------------
 // Applying normalized difference will result is a new band name 'VH_1'. 
 // This will contain the normalized values which is between 0 to 1. 
 var polVH = s1Collection.select(['VH_1'])
 
 // Smooth output image by filtering 
+// (https://earth.esa.int/documents/653194/656796/Speckle_Filtering.pdf)
 var boxcar3by3 = ee.Kernel.circle({
   radius: 3,
   units: 'pixels',
@@ -92,11 +99,11 @@ var boxcar3by3 = ee.Kernel.circle({
 var meanFilter3by3 = function(image){
   return image.convolve(boxcar3by3);
 };
-
 var polVH = polVH.map(meanFilter3by3);
 var polVH1 = polVH.mean();
-Map.addLayer(polVH1.clip(geometry), {min:-0, max:0.5}, 'S-1 Filtered Polarized Boxcar Mean VH');
+Map.addLayer(polVH1.clip(aoi), {min:-0, max:0.5}, 'S-1 Filtered Polarized Boxcar Mean VH');
+// -------------------------------------------------------------------------------
 
 var polVH2 = polVH.median();
-//Map.addLayer(polVH2.clip(geometry), {min:-30, max:1}, 'S-1 Filtered Polarized Boxcar Median VH');
+//Map.addLayer(polVH2.clip(aoi), {min:-30, max:1}, 'S-1 Filtered Polarized Boxcar Median VH');
 
